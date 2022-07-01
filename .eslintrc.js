@@ -44,4 +44,7 @@ module.exports = {
     'react-hooks/exhaustive-deps': 'error',
     'import/prefer-default-export': 'off',
   },
+  globals: {
+    NodeJS: true,
+  },
 };
