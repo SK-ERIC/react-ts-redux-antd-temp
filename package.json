@@ -83,11 +83,10 @@
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
-    "*.{js,ts,tsx}": [
-      "eslint --quiet --cache --fix",
-      "git add"
+    "src/**/*.{js,ts,tsx}": [
+      "eslint --quiet --cache --fix"
     ],
-    "*.{json,js,ts,jsx,tsx,html}": [
+    "src/**/*.{json,js,ts,jsx,tsx,html}": [
       "prettier --write"
   ]
   }
