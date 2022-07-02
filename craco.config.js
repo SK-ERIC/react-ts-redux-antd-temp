@@ -4,54 +4,45 @@
  * - whenTest ☞ process.env.NODE_ENV === 'test'
  * - whenProd ☞ process.env.NODE_ENV === 'production'
  */
-const {
-  when,
-  whenDev,
-  whenProd,
-  whenTest,
-  ESLINT_MODES,
-  POSTCSS_MODES
-} = require('@craco/craco')
-const webpack = require('webpack')
-const CracoLessPlugin = require('craco-less')
-const CracoAntDesignPlugin = require('craco-antd')
-const WebpackBar = require('webpackbar')
-const CircularDependencyPlugin = require('circular-dependency-plugin')
-const TerserPlugin = require('terser-webpack-plugin')
-const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
-const CompressionWebpackPlugin = require('compression-webpack-plugin')
-const DashboardPlugin = require('webpack-dashboard/plugin')
-const SimpleProgressWebpackPlugin = require('simple-progress-webpack-plugin')
+const { when, whenDev, whenProd, whenTest, ESLINT_MODES, POSTCSS_MODES } = require('@craco/craco');
+const webpack = require('webpack');
+const CracoLessPlugin = require('craco-less');
+const CracoAntDesignPlugin = require('craco-antd');
+const WebpackBar = require('webpackbar');
+const CircularDependencyPlugin = require('circular-dependency-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+const CompressionWebpackPlugin = require('compression-webpack-plugin');
+const DashboardPlugin = require('webpack-dashboard/plugin');
+const SimpleProgressWebpackPlugin = require('simple-progress-webpack-plugin');
 
-const path = require('path')
-const fs = require('fs')
-const dotenv = require('dotenv')
+const path = require('path');
+const fs = require('fs');
+const dotenv = require('dotenv');
 
 // 判断编译环境是否为生产
-const isBuildAnalyzer = process.env.BUILD_ANALYZER === 'true'
+const isBuildAnalyzer = process.env.BUILD_ANALYZER === 'true';
 
-const pathResolve = (pathUrl) => path.join(__dirname, pathUrl)
+const pathResolve = (pathUrl) => path.join(__dirname, pathUrl);
 
 const getProxyConfig = (keys) => {
-  const proxyConfig = dotenv.parse(
-    fs.readFileSync(path.resolve(__dirname, './proxy.env'))
-  )
+  const proxyConfig = dotenv.parse(fs.readFileSync(path.resolve(__dirname, './proxy.env')));
   for (const key of keys) {
     if (proxyConfig[key]) {
-      return proxyConfig[key]
+      return proxyConfig[key];
     }
   }
-}
+};
 const genPathRewriteFunc = (curPath, keys) => {
   return (path, req) => {
-    const val = getProxyConfig(keys)
+    const val = getProxyConfig(keys);
     if (!val) {
-      return path
+      return path;
     }
-    return path.replace(curPath, val)
-  }
-}
+    return path.replace(curPath, val);
+  };
+};
 
 module.exports = {
   webpack: {
@@ -71,11 +62,11 @@ module.exports = {
             include: /src/,
             failOnError: true,
             allowAsyncCycles: false,
-            cwd: process.cwd()
+            cwd: process.cwd(),
           }),
           // webpack-dev-server 强化插件
           new DashboardPlugin(),
-          new webpack.HotModuleReplacementPlugin()
+          new webpack.HotModuleReplacementPlugin(),
         ],
         []
       ),
@@ -90,8 +81,8 @@ module.exports = {
           new BundleAnalyzerPlugin({
             analyzerMode: 'static', // html 文件方式输出编译分析
             openAnalyzer: false,
-            reportFilename: path.resolve(__dirname, `analyzer/index.html`)
-          })
+            reportFilename: path.resolve(__dirname, `analyzer/index.html`),
+          }),
         ],
         []
       ),
@@ -106,20 +97,20 @@ module.exports = {
                 warnings: false,
                 drop_console: true, // 生产环境下移除控制台所有的内容
                 drop_debugger: true, // 移除断点
-                pure_funcs: ['console.log'] // 生产环境下移除console
-              }
-            }
+                pure_funcs: ['console.log'], // 生产环境下移除console
+              },
+            },
           }),
           // 打压缩包
           new CompressionWebpackPlugin({
             algorithm: 'gzip',
             test: new RegExp('\\.(' + ['js', 'css'].join('|') + ')$'),
             threshold: 1024,
-            minRatio: 0.8
-          })
+            minRatio: 0.8,
+          }),
         ],
         []
-      )
+      ),
     ],
     //抽离公用模块
     optimization: {
@@ -129,17 +120,17 @@ module.exports = {
             chunks: 'initial',
             minChunks: 2,
             maxInitialRequests: 5,
-            minSize: 0
+            minSize: 0,
           },
           vendor: {
             test: /node_modules/,
             chunks: 'initial',
             name: 'vendor',
             priority: 10,
-            enforce: true
-          }
-        }
-      }
+            enforce: true,
+          },
+        },
+      },
     },
     /**
      * 重写 webpack 任意配置
@@ -148,7 +139,7 @@ module.exports = {
      */
     configure: (webpackConfig, { env, paths }) => {
       // paths.appPath='public'
-      paths.appBuild = 'dist' // 配合输出打包修改文件目录
+      paths.appBuild = 'dist'; // 配合输出打包修改文件目录
       /**
        * 修改 output
        */
@@ -160,8 +151,8 @@ module.exports = {
         //   chunkFilename: 'static/js/[name].js'
         // },
         path: path.resolve(__dirname, 'dist'), // 修改输出文件目录
-        publicPath: '/'
-      }
+        publicPath: '/',
+      };
       /**
        * webpack split chunks
        */
@@ -173,23 +164,19 @@ module.exports = {
       //   }
       // }
       // 返回重写后的新配置
-      return webpackConfig
-    }
+      return webpackConfig;
+    },
   },
   babel: {
     presets: [],
     plugins: [
       // AntDesign 按需加载
-      [
-        'import',
-        { libraryName: 'antd', libraryDirectory: 'es', style: true },
-        'antd'
-      ],
-      ['@babel/plugin-proposal-decorators', { legacy: true }] // 用来支持装饰器
+      ['import', { libraryName: 'antd', libraryDirectory: 'es', style: true }, 'antd'],
+      ['@babel/plugin-proposal-decorators', { legacy: true }], // 用来支持装饰器
     ],
     loaderOptions: (babelLoaderOptions, { env, paths }) => {
-      return babelLoaderOptions
-    }
+      return babelLoaderOptions;
+    },
   },
   /**
    * 新增 craco 提供的 plugin
@@ -199,8 +186,8 @@ module.exports = {
     ...whenDev(
       () => [
         {
-          plugin: new AntdDayjsWebpackPlugin()
-        }
+          plugin: new AntdDayjsWebpackPlugin(),
+        },
       ],
       []
     ),
@@ -229,9 +216,9 @@ module.exports = {
     {
       plugin: CracoAntDesignPlugin,
       options: {
-        customizeThemeLessPath: path.join(__dirname, 'antd.customize.less')
-      }
-    }
+        customizeThemeLessPath: path.join(__dirname, 'antd.customize.less'),
+      },
+    },
   ],
   devServer: {
     port: 9000,
@@ -242,7 +229,7 @@ module.exports = {
         secure: false,
         xfwd: false,
         pathRewrite: genPathRewriteFunc('/api', ['API_PATH_REWRITE']),
-        router: () => getProxyConfig(['API_TARGET', 'TARGET'])
+        router: () => getProxyConfig(['API_TARGET', 'TARGET']),
       },
       '/users': {
         target: 'https://placeholder.com/',
@@ -250,8 +237,8 @@ module.exports = {
         secure: false,
         xfwd: false,
         pathRewrite: genPathRewriteFunc('/sass', ['SASS_PATH_REWRITE']),
-        router: () => getProxyConfig(['SASS_TARGET', 'TARGET'])
-      }
-    }
-  }
-}
+        router: () => getProxyConfig(['SASS_TARGET', 'TARGET']),
+      },
+    },
+  },
+};

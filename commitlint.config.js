@@ -15,12 +15,16 @@ module.exports = {
         'refactor', // 重构(既不增加新功能，也不是修复bug)
         'perf', // 性能优化
         'test', // 增加测试
-        'chore', // 构建过程或辅助工具的变动
+        'chore', // 依赖更新或脚手架配置修改等
+        'workflow', // 工作流改进
+        'ci', // 持续集成
+        'types', // 类型定义文件更改
+        'wip', // 开发中
         'revert', // 回退
-        'build' // 打包
-      ]
+        'build', // 打包
+      ],
     ],
     // subject 大小写不做校验
-    'subject-case': [0]
-  }
-}
+    'subject-case': [0],
+  },
+};
